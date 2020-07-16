@@ -4,7 +4,8 @@ import {connect, ConnectedProps} from 'react-redux';
 import {storeInterface} from '../redux/utils';
 import DetailRowComponent from '../components/DetailRow';
 import DialogComponent from '../components/Dialog';
-import {_ChangeName} from '../redux/actions';
+import {_ChangeName, _LogOut} from '../redux/actions';
+import CustomButton from '../components/CustomButton';
 
 export interface HomeScreenProps {}
 
@@ -12,6 +13,7 @@ export interface HomeScreenState {
   dialogText: string;
   dialogVisible: boolean;
   dialogCallback: (text: string) => void;
+  logOutLoading: boolean;
 }
 
 class HomeScreen extends React.Component<
@@ -25,6 +27,7 @@ class HomeScreen extends React.Component<
       dialogCallback: (text) => {},
       dialogText: '',
       dialogVisible: false,
+      logOutLoading: false,
     };
   }
 
@@ -47,6 +50,13 @@ class HomeScreen extends React.Component<
           labelText="Email"
           detailText={this.props.user?.email ?? ''}
         />
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
+          <CustomButton
+            text="Logout"
+            callback={this.logOut}
+            active={!this.state.logOutLoading}
+          />
+        </View>
       </View>
     );
   }
@@ -72,6 +82,13 @@ class HomeScreen extends React.Component<
       dialogCallback: this.changeName,
       dialogText: 'Name',
       dialogVisible: true,
+    });
+  };
+
+  logOut = (): void => {
+    this.setState({logOutLoading: true});
+    _LogOut(this.props.dispatch)(() => {
+      this.setState({logOutLoading: false});
     });
   };
 }

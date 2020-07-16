@@ -24,6 +24,8 @@ const changeName = (name: string): actionInterface => {
   };
 };
 
+const logOut = (): actionInterface => ({type: dispatchNames.logOut});
+
 export const _SignIn = (dispatch: Dispatch) => async (
   email: string,
   password: string,
@@ -95,6 +97,20 @@ export const _ChangeName = (dispatch: Dispatch) => async (
     await firebase.database().ref(`Users/${userId}/name`).set(newName);
 
     dispatch(changeName(newName));
+  } catch (err) {
+    console.log(err);
+  }
+
+  callback();
+};
+
+export const _LogOut = (dispatch: Dispatch) => async (
+  callback: () => void,
+): Promise<void> => {
+  try {
+    await firebase.auth().signOut();
+
+    dispatch(logOut());
   } catch (err) {
     console.log(err);
   }

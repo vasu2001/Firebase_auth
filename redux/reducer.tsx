@@ -14,12 +14,16 @@ const MainReducer = (
         isLoggedIn: true,
         user: action.payload,
       };
+
     case dispatchNames.changeName:
       const newState: storeInterface = {
         ...state,
       };
       newState.user ? (newState.user.name = action.payload.name) : null;
       return newState;
+
+    case dispatchNames.logOut:
+      return initialState;
     default:
       return state;
   }
