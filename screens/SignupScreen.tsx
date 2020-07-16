@@ -3,7 +3,7 @@ import {View, StyleSheet, Text} from 'react-native';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {ScrollView} from 'react-native-gesture-handler';
-import {_SingUp} from '../redux/actions';
+import {_SignUp} from '../redux/actions';
 import {connect, ConnectedProps} from 'react-redux';
 
 export interface SignupScreenProps {}
@@ -113,7 +113,7 @@ class SignupScreenComponent extends React.Component<
       password2.length > 0
     ) {
       this.setState({loading: true});
-      _SingUp(this.props.dispatch)(email, password1, name, () => {
+      _SignUp(this.props.dispatch)(email, password1, name, () => {
         this.setState({loading: false});
       });
     } else {

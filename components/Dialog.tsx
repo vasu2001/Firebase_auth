@@ -6,10 +6,13 @@ import CustomButton from './CustomButton';
 export interface DialogProps {
   fieldName: string;
   callback: (text: string) => void;
+  cancel: () => void;
+  visible: boolean;
 }
 
 export interface DialogState {
   fieldValue: string;
+  laoding: boolean;
 }
 
 export default class DialogComponent extends React.Component<
@@ -20,12 +23,16 @@ export default class DialogComponent extends React.Component<
     super(props);
     this.state = {
       fieldValue: '',
+      laoding: false,
     };
   }
 
   public render() {
     return (
-      <Modal transparent presentationStyle="overFullScreen">
+      <Modal
+        transparent
+        presentationStyle="overFullScreen"
+        visible={this.props.visible}>
         <View style={styles.mainContainer}>
           <View style={styles.dialogContainer}>
             <CustomInput
@@ -34,11 +41,22 @@ export default class DialogComponent extends React.Component<
               onChangeText={(text: string) => {
                 this.setState({fieldValue: text});
               }}
-              validated={true}
+              validated={this.state.fieldValue.length > 0}
             />
             <View style={styles.buttonRow}>
-              <CustomButton text="Submit" callback={() => {}} />
-              <CustomButton text="Cancel" callback={() => {}} />
+              <CustomButton
+                text="Submit"
+                callback={() => {
+                  this.setState({laoding: true});
+                  this.props.callback(this.state.fieldValue);
+                }}
+                active={!this.state.laoding}
+              />
+              <CustomButton
+                text="Cancel"
+                callback={this.props.cancel}
+                active={!this.state.laoding}
+              />
             </View>
           </View>
         </View>

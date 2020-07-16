@@ -4,10 +4,15 @@ import {connect, ConnectedProps} from 'react-redux';
 import {storeInterface} from '../redux/utils';
 import DetailRowComponent from '../components/DetailRow';
 import DialogComponent from '../components/Dialog';
+import {_ChangeName} from '../redux/actions';
 
 export interface HomeScreenProps {}
 
-export interface HomeScreenState {}
+export interface HomeScreenState {
+  dialogText: string;
+  dialogVisible: boolean;
+  dialogCallback: (text: string) => void;
+}
 
 class HomeScreen extends React.Component<
   HomeScreenProps & ConnectedProps<typeof connector>,
@@ -15,18 +20,28 @@ class HomeScreen extends React.Component<
 > {
   constructor(props: HomeScreenProps & ConnectedProps<typeof connector>) {
     super(props);
+
+    this.state = {
+      dialogCallback: (text) => {},
+      dialogText: '',
+      dialogVisible: false,
+    };
   }
 
   render() {
     return (
       <View style={{flex: 1}}>
-        <DialogComponent fieldName="Name" callback={(Text) => {}} />
-        <Text>HomeScreen</Text>
+        <DialogComponent
+          fieldName={this.state.dialogText}
+          visible={this.state.dialogVisible}
+          callback={this.state.dialogCallback}
+          cancel={this.cancelDialog}
+        />
         <DetailRowComponent
           labelText="Name"
           detailText={this.props.user?.name ?? ''}
           editable
-          editCallback={() => {}}
+          editCallback={this.showChangeName}
         />
         <DetailRowComponent
           labelText="Email"
@@ -35,6 +50,30 @@ class HomeScreen extends React.Component<
       </View>
     );
   }
+
+  cancelDialog = (): void => {
+    this.setState({
+      dialogCallback: (text) => {},
+      dialogText: '',
+      dialogVisible: false,
+    });
+  };
+
+  changeName = (newName: string): void => {
+    _ChangeName(this.props.dispatch)(
+      newName,
+      this.cancelDialog,
+      this.props.user?.userId ?? '',
+    );
+  };
+
+  showChangeName = (): void => {
+    this.setState({
+      dialogCallback: this.changeName,
+      dialogText: 'Name',
+      dialogVisible: true,
+    });
+  };
 }
 
 const mapStateToProps = (state: storeInterface) => {

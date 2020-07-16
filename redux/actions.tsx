@@ -17,6 +17,13 @@ const signIn = (payload: object): actionInterface => {
   };
 };
 
+const changeName = (name: string): actionInterface => {
+  return {
+    type: dispatchNames.changeName,
+    payload: {name},
+  };
+};
+
 export const _SignIn = (dispatch: Dispatch) => async (
   email: string,
   password: string,
@@ -49,7 +56,7 @@ export const _SignIn = (dispatch: Dispatch) => async (
   callback();
 };
 
-export const _SingUp = (dispatch: Dispatch) => async (
+export const _SignUp = (dispatch: Dispatch) => async (
   email: string,
   password: string,
   name: string,
@@ -72,6 +79,22 @@ export const _SingUp = (dispatch: Dispatch) => async (
         profilePhoto: null,
       }),
     );
+  } catch (err) {
+    console.log(err);
+  }
+
+  callback();
+};
+
+export const _ChangeName = (dispatch: Dispatch) => async (
+  newName: string,
+  callback: () => void,
+  userId: string,
+): Promise<void> => {
+  try {
+    await firebase.database().ref(`Users/${userId}/name`).set(newName);
+
+    dispatch(changeName(newName));
   } catch (err) {
     console.log(err);
   }
