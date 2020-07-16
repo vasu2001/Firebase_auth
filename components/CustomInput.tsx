@@ -11,7 +11,7 @@ export interface CustomInputProps {
   validated: boolean;
 }
 
-const CustomButton: React.SFC<CustomInputProps> = ({
+const CustomInput: React.SFC<CustomInputProps> = ({
   value,
   labelText,
   onChangeText,
@@ -42,7 +42,7 @@ const CustomButton: React.SFC<CustomInputProps> = ({
   );
 };
 
-export default CustomButton;
+export default CustomInput;
 
 const styles = StyleSheet.create({
   formContainer: {
