@@ -3,27 +3,34 @@ import {View, StyleSheet, Text} from 'react-native';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import {NavigationProp} from '@react-navigation/native';
+import {connect, ConnectedProps} from 'react-redux';
+import {_SignIn} from '../redux/actions';
 
-export interface SigninScreenProps {}
+export interface SigninScreenProps {
+  navigation: NavigationProp<any>;
+}
 
 export interface SigninScreenState {
   email: string;
   password: string;
   emailValidated: boolean;
   passwordValidated: boolean;
+  loading: boolean;
 }
 
-export default class SigninScreenComponent extends React.Component<
-  SigninScreenProps,
+class SigninScreenComponent extends React.Component<
+  SigninScreenProps & ConnectedProps<typeof connector>,
   SigninScreenState
 > {
-  constructor(props: SigninScreenProps) {
+  constructor(props: SigninScreenProps & ConnectedProps<typeof connector>) {
     super(props);
     this.state = {
-      email: '',
-      password: '',
+      email: 'v@a.com',
+      password: '12345678',
       emailValidated: true,
       passwordValidated: true,
+      loading: false,
     };
   }
 
@@ -47,7 +54,11 @@ export default class SigninScreenComponent extends React.Component<
         <CustomButton
           text="SignIn"
           callback={this.handleSignIn}
-          active={this.state.emailValidated && this.state.passwordValidated}
+          active={
+            this.state.emailValidated &&
+            this.state.passwordValidated &&
+            !this.state.loading
+          }
         />
 
         <View style={styles.forgetPassConatiner}>
@@ -67,8 +78,14 @@ export default class SigninScreenComponent extends React.Component<
   }
 
   handleSignIn = (): void => {
-    if (this.state.email.length > 0 && this.state.password.length > 0) {
+    const {email, password} = this.state;
+    console.log('signin');
+    if (email.length > 0 && password.length > 0) {
       //signin req
+      this.setState({loading: true});
+      _SignIn(this.props.dispatch)(email, password, () => {
+        this.setState({loading: false});
+      });
     } else {
       console.log('enter all details');
     }
@@ -85,8 +102,13 @@ export default class SigninScreenComponent extends React.Component<
 
   forgetPassword = (): void => {};
 
-  signup = (): void => {};
+  signup = (): void => {
+    this.props.navigation.navigate('SignUp');
+  };
 }
+
+const connector = connect();
+export default connector(SigninScreenComponent);
 
 const styles = StyleSheet.create({
   mianContainer: {
@@ -102,6 +124,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     flexDirection: 'row',
     alignItems: 'flex-end',
+    padding: 2,
     // alignSelf: 'center',
   },
   linkText: {

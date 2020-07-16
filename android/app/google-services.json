@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "677284630161",
+    "firebase_url": "https://react-native-auth-aba3a.firebaseio.com",
+    "project_id": "react-native-auth-aba3a",
+    "storage_bucket": "react-native-auth-aba3a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677284630161:android:e2dd41a3da70730f5d3930",
+        "android_client_info": {
+          "package_name": "com.firebase_auth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677284630161-u182gmkti9htlji443dp8hfctr3qebuj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5xJnB9ysjU4-TPGjAyxxAGqNHhC7N6V4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677284630161-u182gmkti9htlji443dp8hfctr3qebuj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -12,9 +12,19 @@ import React, {useState, useEffect} from 'react';
 
 import IntroScreenComponent from './screens/IntroScreen';
 import AsyncStorage from '@react-native-community/async-storage';
-import MainNaviagtion from './navigators/MainNaviagtor';
+import MainNaviagtion from './navigators/MainNavigator';
+import {createStore} from 'redux';
+import MainReducer from './redux/reducer';
+import {storeInterface} from './redux/utils';
+import {Provider} from 'react-redux';
+
+const initialState: storeInterface = {
+  isLoggedIn: false,
+  user: null,
+};
 
 declare const global: {HermesInternal: null | {}};
+const store = createStore(MainReducer, initialState);
 
 const App = () => {
   const [hasOpened, setHasOpened] = useState(true);
@@ -36,7 +46,9 @@ const App = () => {
       }}
     />
   ) : (
-    <MainNaviagtion />
+    <Provider store={store}>
+      <MainNaviagtion />
+    </Provider>
   );
 };
 
