@@ -7,6 +7,8 @@ import {
 import {Dispatch} from 'redux';
 // import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import firebase from 'firebase';
+import {Platform} from 'react-native';
+import atob from 'atob';
 
 if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
 
@@ -25,6 +27,11 @@ const changeName = (name: string): actionInterface => {
 };
 
 const logOut = (): actionInterface => ({type: dispatchNames.logOut});
+
+const changeProfile = (): actionInterface => ({
+  type: dispatchNames.changeProfile,
+  payload: {},
+});
 
 export const _SignIn = (dispatch: Dispatch) => async (
   email: string,
@@ -53,9 +60,8 @@ export const _SignIn = (dispatch: Dispatch) => async (
     );
   } catch (err) {
     console.log(err);
+    callback();
   }
-
-  callback();
 };
 
 export const _SignUp = (dispatch: Dispatch) => async (
@@ -83,9 +89,8 @@ export const _SignUp = (dispatch: Dispatch) => async (
     );
   } catch (err) {
     console.log(err);
+    callback();
   }
-
-  callback();
 };
 
 export const _ChangeName = (dispatch: Dispatch) => async (
@@ -117,3 +122,44 @@ export const _LogOut = (dispatch: Dispatch) => async (
 
   callback();
 };
+
+export const _UploadProfile = (dispatch: Dispatch) => async (
+  image: any,
+  callback: () => void,
+): Promise<void> => {
+  try {
+    // const res = await firebase
+    //   .storage()
+    //   .ref('img/aa.jpg')
+    //   .putString(data.data, 'base64', {contentType: data.type});
+    // dispatch(logOut());
+
+    const {uri} = image;
+    // const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const filename = 'a/aa.jpg';
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+
+    const arrayBuffer = _base64ToArrayBuffer(image.data);
+
+    // const file = fs.readFileSync(uri);
+
+    // const task = await firebase.storage().ref(filename).putFile(uploadUri);
+
+    // console.log(task);
+    // console.log(res);
+  } catch (err) {
+    console.log(err);
+  }
+
+  callback();
+};
+
+function _base64ToArrayBuffer(base64: string) {
+  var binary_string = atob(base64);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}

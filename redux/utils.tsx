@@ -2,6 +2,7 @@ export const dispatchNames = {
   signIn: 'SIGNIN',
   changeName: 'CHANGE_NAME',
   logOut: 'LOGOUT',
+  changeProfile: 'CHANGE_PROFILE',
 };
 
 export interface storeInterface {
