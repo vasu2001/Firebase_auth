@@ -16,7 +16,7 @@ const MainReducer = (
       };
 
     case dispatchNames.changeName:
-      const newState: storeInterface = {
+      let newState: storeInterface = {
         ...state,
       };
       newState.user ? (newState.user.name = action.payload.name) : null;
@@ -24,6 +24,16 @@ const MainReducer = (
 
     case dispatchNames.logOut:
       return initialState;
+
+    case dispatchNames.changePhoto:
+      let newState2: storeInterface = {
+        ...state,
+      };
+      newState2.user
+        ? (newState2.user.profilePhoto = action.payload.uri)
+        : null;
+      return newState2;
+
     default:
       return state;
   }

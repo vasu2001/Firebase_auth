@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, ProgressBarAndroid} from 'react-native';
 import {connect, ConnectedProps} from 'react-redux';
 import {storeInterface} from '../redux/utils';
 import DetailRowComponent from '../components/DetailRow';
@@ -16,12 +16,13 @@ export interface HomeScreenState {
   dialogVisible: boolean;
   dialogCallback: (text: string) => void;
   logOutLoading: boolean;
+  photoLoading: boolean;
 }
 
 const options = {
   title: 'Select Avatar',
   storageOptions: {
-    skipBackup: true,
+    skipBackup: false,
     path: 'images',
   },
 };
@@ -38,10 +39,19 @@ class HomeScreen extends React.Component<
       dialogText: '',
       dialogVisible: false,
       logOutLoading: false,
+      photoLoading: false,
     };
   }
 
+  componentDidUpdate() {
+    console.log('component did update');
+  }
+
   render() {
+    const imgSource = this.props.user?.profilePhoto
+      ? {uri: this.props.user?.profilePhoto}
+      : require('../assets/profile_placeholder.jpg');
+
     return (
       <View style={{flex: 1}}>
         <DialogComponent
@@ -50,30 +60,39 @@ class HomeScreen extends React.Component<
           callback={this.state.dialogCallback}
           cancel={this.cancelDialog}
         />
-        <TouchableOpacity
-          style={{
-            margin: 30,
-            alignSelf: 'center',
-            borderWidth: 2,
-            borderRadius: 150,
-          }}
-          onPress={this.selectImage}>
-          <Image
-            source={
-              true || this.props.user?.profilePhoto
-                ? {
-                    uri:
-                      'https://firebasestorage.googleapis.com/v0/b/react-native-auth-aba3a.appspot.com/o/2067228385?alt=media&token=dfbf7971-93d1-4f8b-bae1-788110de12db',
-                  }
-                : require('../assets/profile_placeholder.jpg')
-            }
+        {this.state.photoLoading ? (
+          <View
             style={{
+              margin: 30,
+              alignSelf: 'center',
+              borderWidth: 2,
               height: 200,
               width: 200,
               borderRadius: 100,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <ProgressBarAndroid />
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={{
+              margin: 30,
+              alignSelf: 'center',
+              borderWidth: 2,
+              borderRadius: 105,
             }}
-          />
-        </TouchableOpacity>
+            onPress={this.selectImage}>
+            <Image
+              source={imgSource}
+              style={{
+                height: 200,
+                width: 200,
+                borderRadius: 100,
+              }}
+            />
+          </TouchableOpacity>
+        )}
         <DetailRowComponent
           labelText="Name"
           detailText={this.props.user?.name ?? ''}
@@ -128,29 +147,30 @@ class HomeScreen extends React.Component<
 
   selectImage = (): void => {
     ImagePicker.showImagePicker(options, (response) => {
-      console.log('Response = ', response.uri);
+      // console.log('Response = ', response);
+      this.setState({photoLoading: true});
 
       if (response.didCancel) {
         console.log('User cancelled image picker');
+        this.setState({photoLoading: false});
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
+        this.setState({photoLoading: false});
       } else {
-        const source = {uri: response.uri};
-
-        // You can also display the image using data:
-        // const source = { uri: 'data:image/jpeg;base64,' + response.data };
-
-        // this.setState({
-        //   avatarSource: source,
-        // });
-        _UploadProfile(this.props.dispatch)(response, () => {});
+        _UploadProfile(this.props.dispatch)(
+          response?.path ?? '',
+          this.props.user?.userId ?? '',
+          () => {
+            this.setState({photoLoading: false});
+          },
+        );
       }
     });
   };
 }
 
 const mapStateToProps = (state: storeInterface) => {
-  return {...state};
+  return state;
 };
 
 const connector = connect(mapStateToProps);

@@ -2,7 +2,7 @@ export const dispatchNames = {
   signIn: 'SIGNIN',
   changeName: 'CHANGE_NAME',
   logOut: 'LOGOUT',
-  changeProfile: 'CHANGE_PROFILE',
+  changePhoto: 'CHANGE_PHOTO',
 };
 
 export interface storeInterface {
@@ -10,7 +10,7 @@ export interface storeInterface {
   user: {
     name: string;
     email: string;
-    profilePhoto: string;
+    profilePhoto: string | null;
     userId: string;
   } | null;
 }

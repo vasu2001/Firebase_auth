@@ -5,14 +5,15 @@ import {
   firebaseConfig,
 } from './utils';
 import {Dispatch} from 'redux';
-// import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
-import firebase from 'firebase';
 import {Platform} from 'react-native';
-import atob from 'atob';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
+import storage from '@react-native-firebase/storage';
+import shortid from 'shortid';
 
-if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+// if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
 
-const signIn = (payload: object): actionInterface => {
+const signIn = (payload: storeInterface['user']): actionInterface => {
   return {
     type: dispatchNames.signIn,
     payload,
@@ -28,9 +29,9 @@ const changeName = (name: string): actionInterface => {
 
 const logOut = (): actionInterface => ({type: dispatchNames.logOut});
 
-const changeProfile = (): actionInterface => ({
-  type: dispatchNames.changeProfile,
-  payload: {},
+const changePhoto = (uri: string): actionInterface => ({
+  type: dispatchNames.changePhoto,
+  payload: {uri},
 });
 
 export const _SignIn = (dispatch: Dispatch) => async (
@@ -39,23 +40,23 @@ export const _SignIn = (dispatch: Dispatch) => async (
   callback: () => void,
 ): Promise<void> => {
   try {
-    const userRes = await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password);
-    // console.log(userRes);
+    const userRes = await auth().signInWithEmailAndPassword(email, password);
+    // .then((data) => console.log(data));
+    console.log(userRes);
 
-    const dataRes = await firebase
-      .database()
+    const dataRes = await database()
       .ref('Users/' + userRes?.user?.uid)
       .once('value');
-    // console.log(dataRes.child('photoURL').exportVal());
+    console.log(dataRes.child('photoURL').exportVal());
 
     dispatch(
       signIn({
         userId: userRes?.user?.uid,
-        email: userRes?.user?.email,
-        name: dataRes.child('name').exportVal(),
-        profilePhoto: dataRes.child('photoURL').exportVal(),
+        email: userRes?.user?.email ?? '',
+        name: dataRes.child('name').val(),
+        profilePhoto: dataRes.child('photoURL').val()
+          ? dataRes.child('photoURL').val()
+          : null,
       }),
     );
   } catch (err) {
@@ -71,12 +72,13 @@ export const _SignUp = (dispatch: Dispatch) => async (
   callback: () => void,
 ): Promise<void> => {
   try {
-    const userRes = await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password);
+    const userRes = await auth().createUserWithEmailAndPassword(
+      email,
+      password,
+    );
     // console.log(userRes);
 
-    const ref = firebase.database().ref('Users/' + userRes?.user?.uid);
+    const ref = database().ref('Users/' + userRes?.user?.uid);
     await ref.child('name').set(name);
 
     dispatch(
@@ -99,7 +101,7 @@ export const _ChangeName = (dispatch: Dispatch) => async (
   userId: string,
 ): Promise<void> => {
   try {
-    await firebase.database().ref(`Users/${userId}/name`).set(newName);
+    await database().ref(`Users/${userId}/name`).set(newName);
 
     dispatch(changeName(newName));
   } catch (err) {
@@ -113,7 +115,7 @@ export const _LogOut = (dispatch: Dispatch) => async (
   callback: () => void,
 ): Promise<void> => {
   try {
-    await firebase.auth().signOut();
+    await auth().signOut();
 
     dispatch(logOut());
   } catch (err) {
@@ -124,42 +126,23 @@ export const _LogOut = (dispatch: Dispatch) => async (
 };
 
 export const _UploadProfile = (dispatch: Dispatch) => async (
-  image: any,
+  imagePath: string,
+  userId: string,
   callback: () => void,
 ): Promise<void> => {
   try {
-    // const res = await firebase
-    //   .storage()
-    //   .ref('img/aa.jpg')
-    //   .putString(data.data, 'base64', {contentType: data.type});
-    // dispatch(logOut());
+    const photoId = shortid.generate();
 
-    const {uri} = image;
-    // const filename = uri.substring(uri.lastIndexOf('/') + 1);
-    const filename = 'a/aa.jpg';
-    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const storageRef = storage().ref(`img/${photoId}`);
+    await storageRef.putFile(imagePath);
+    const urlRes = await storageRef.getDownloadURL();
 
-    const arrayBuffer = _base64ToArrayBuffer(image.data);
+    const databaseRef = database().ref('Users/' + userId);
+    await databaseRef.child('photoURL').set(urlRes);
 
-    // const file = fs.readFileSync(uri);
-
-    // const task = await firebase.storage().ref(filename).putFile(uploadUri);
-
-    // console.log(task);
-    // console.log(res);
+    dispatch(changePhoto(urlRes));
   } catch (err) {
     console.log(err);
   }
-
   callback();
 };
-
-function _base64ToArrayBuffer(base64: string) {
-  var binary_string = atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
-    bytes[i] = binary_string.charCodeAt(i);
-  }
-  return bytes.buffer;
-}

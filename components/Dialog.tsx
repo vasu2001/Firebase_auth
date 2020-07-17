@@ -50,7 +50,7 @@ export default class DialogComponent extends React.Component<
                   this.setState({laoding: true});
                   this.props.callback(this.state.fieldValue);
                 }}
-                active={!this.state.laoding}
+                active={!this.state.laoding && this.state.fieldValue.length > 0}
               />
               <CustomButton
                 text="Cancel"
