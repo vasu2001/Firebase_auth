@@ -26,8 +26,8 @@ class SigninScreenComponent extends React.Component<
   constructor(props: SigninScreenProps & ConnectedProps<typeof connector>) {
     super(props);
     this.state = {
-      email: 'v@a.com',
-      password: '12345678',
+      email: '',
+      password: '',
       emailValidated: true,
       passwordValidated: true,
       loading: false,

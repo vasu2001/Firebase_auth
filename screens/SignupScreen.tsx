@@ -26,10 +26,10 @@ class SignupScreenComponent extends React.Component<
   constructor(props: SignupScreenProps & ConnectedProps<typeof connector>) {
     super(props);
     this.state = {
-      email: 'a@a.com',
-      password1: '12345678',
-      password2: '12345678',
-      name: 'vasu',
+      email: '',
+      password1: '',
+      password2: '',
+      name: '',
       emailValidated: true,
       passwordValidated1: true,
       passwordValidated2: true,
